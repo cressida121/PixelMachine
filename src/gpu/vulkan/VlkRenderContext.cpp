@@ -162,10 +162,14 @@ namespace PixelMachine {
 			vkCmdBindPipeline(m_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pass.m_vkPipeline);
 
 			std::vector<VkBuffer> vbs;
+			const VlkBuffer *indexBuffer = nullptr;
 
 			for (auto buffer : pass.m_buffers) {
 				if (buffer->GetType() == BufferType::VertexBuffer) {
 					vbs.push_back(buffer->GetHandle());
+				}
+				else if (buffer->GetType() == BufferType::IndexBuffer) {
+					indexBuffer = buffer;
 				}
 			}
 
@@ -173,6 +177,12 @@ namespace PixelMachine {
 				std::vector<VkDeviceSize> offsets(vbs.size());
 				vkCmdBindVertexBuffers(m_vkCommandBuffer, 0, vbs.size(), vbs.data(), offsets.data());
 			}
+
+			if (indexBuffer) {
+				vkCmdBindIndexBuffer(m_vkCommandBuffer, indexBuffer->GetHandle(), 0, VK_INDEX_TYPE_UINT32);
+			}
+
+			//vkCmdBindDescriptorSets
 
 			VkViewport viewport = {};
 			viewport.x = 0.0f;
@@ -182,7 +192,14 @@ namespace PixelMachine {
 
 			vkCmdSetViewportWithCount(m_vkCommandBuffer, 1u, &viewport);
 			vkCmdSetScissorWithCount(m_vkCommandBuffer, 1u, &renderArea);
-			vkCmdDraw(m_vkCommandBuffer, 3u, 1u, 0u, 0u);
+
+			if (indexBuffer) {
+				vkCmdDrawIndexed(m_vkCommandBuffer, indexBuffer->GetSize() / indexBuffer->GetLayout().GetSize(), 1, 0, 0, 0);
+			}
+			else {
+				vkCmdDraw(m_vkCommandBuffer, 3u, 1u, 0u, 0u);
+			}
+
 			vkCmdEndRenderPass(m_vkCommandBuffer);
 			vkEndCommandBuffer(m_vkCommandBuffer);
 
@@ -334,6 +351,8 @@ namespace PixelMachine {
 			colorBlendInfo.logicOpEnable = VK_FALSE;
 			colorBlendInfo.attachmentCount = 1;
 			colorBlendInfo.pAttachments = &colorBlendAttchState;
+
+			// newPass.CreateDescriptorSets();
 
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 			pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;

@@ -100,51 +100,44 @@ int main() {
 	ShaderProgram *vertexShaderProgram = ShaderProgram::CreateFromCompiled("VS", VS_PATH , ShaderProgramType::VertexShader);
 	ShaderProgram *fragShaderProgram = ShaderProgram::CreateFromCompiled("FS", FS_PATH, ShaderProgramType::FragmentShader);
 
-	Buffer *vertexBuffer3D = Buffer::Create(
+	Buffer *vertexBuffer = Buffer::Create(
 		BufferType::VertexBuffer,
 		ShaderProgramType::VertexShader,
 		BufferLayout({
 		{ BufferDataType::float3, "position" },
 		{ BufferDataType::float3, "color" } }),
-		3 );
+		4 );
 
-	Buffer *vertexBuffer2D = Buffer::Create(
-		BufferType::VertexBuffer,
-		ShaderProgramType::VertexShader,
-		BufferLayout({
-		{ BufferDataType::float2, "position" },
-		{ BufferDataType::float3, "color" } }),
-		3);
-
-	const float vertexData3D[] = {
-		0.0,-0.5, 0.0, // pos
+	const float vertexData[] = {
+	   -0.25,-0.25, 0.0, // pos
 		1.0, 0.5, 0.5, // color
 
-		0.5, 0.5, 0.0, // pos
+		0.25, -0.25, 0.0, // pos
 		0.1, 1.0, 0.4, // color
 
-	   -0.5, 0.5, 0.0, // pos
-		0.0, 0.0, 1.0  // color
+		0.25, 0.25, 0.0, // pos
+		0.0, 0.0, 1.0,  // color
+
+	   -0.25, 0.25, 0.0, // pos
+		0.0, 1.0, 1.0  // color
 	};
 
-	const float vertexData2D[] = {
-	   -0.5,-0.5,	   // pos
-		1.0, 0.1, 0.1, // color
+	vertexBuffer->SetData(vertexData);
 
-		0.5,-0.5,      // pos
-		0.1, 1.0, 0.1, // color
+	Buffer *indexBuffer = Buffer::Create(
+		BufferType::IndexBuffer,
+		ShaderProgramType::VertexShader,
+		BufferLayout({ { BufferDataType::uint1, "index" } }),
+		6);
 
-		0.0, 0.5,      // pos
-		0.1, 0.1, 1.0  // color
-	};
+	const uint32_t indexData[] = { 1u, 3u ,0u, 2u, 3u, 1u };
 
-	vertexBuffer3D->SetData(vertexData3D);
-	vertexBuffer2D->SetData(vertexData2D);
+	indexBuffer->SetData(indexData);
 
 	pContext->BeginPass();
 	vertexShaderProgram->Bind();
-	vertexBuffer3D->Bind();
-	vertexBuffer2D->Bind();
+	vertexBuffer->Bind();
+	indexBuffer->Bind();
 	fragShaderProgram->Bind();
 	pContext->EndPass();
 
@@ -158,8 +151,8 @@ int main() {
 		pContext->PresentFrame();
 	}
 
-	delete vertexBuffer2D;
-	delete vertexBuffer3D;
+	delete indexBuffer;
+	delete vertexBuffer;
 	delete vertexShaderProgram;
 	delete fragShaderProgram;
 	RenderContext::Destroy();

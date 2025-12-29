@@ -39,6 +39,9 @@ namespace PixelMachine {
 				VkPipelineLayout m_vkPipelineLayout = VK_NULL_HANDLE;
 				std::vector<const VlkBuffer*> m_buffers;
 				std::vector<VkPipelineShaderStageCreateInfo> m_shaderStagesInfo;
+				//std::vector<VkDescriptorSetLayout> m_descSetLayouts;
+				//std::vector<VkDescriptorSet> m_descSets;
+				//VkDescriptorPool m_dsPool
 				bool m_renderToScreen = true;
 				bool m_depthTest = false;
 				float m_lineWidth = 0.5;
@@ -46,6 +49,8 @@ namespace PixelMachine {
 				uint32_t m_msaaSamples = 1u;
 				float m_clearColor[3] = { 0 };
 				float m_viewportRect[4] = { 0 };
+
+				//bool CreateDescriptorSets();
 
 				~VlkPass();
 			};
